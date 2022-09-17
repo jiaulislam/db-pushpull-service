@@ -16,4 +16,4 @@ if __name__ == "__main__":
     _end_datetime = datetime(today.year, today.month, today.day, 23, 59, 59)
 
     pp.core_create_logs(_start_datetime, _end_datetime)
-    pp.core_update_logs(_start_datetime, _end_datetime)
+    pp.core_update_logs(_start_datetime, _end_datetime, 100)
