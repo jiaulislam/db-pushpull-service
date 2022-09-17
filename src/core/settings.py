@@ -42,6 +42,7 @@ class Settings(BaseSettings):
             query={
                 "driver": "ODBC Driver 18 for SQL Server",
                 "TrustServerCertificate": "yes",
+                "found_rows": "False",
             },
         )
 

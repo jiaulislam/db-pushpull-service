@@ -23,4 +23,4 @@ class AuthLogMixin:
 
 @declarative_mixin
 class StatusMixin:
-    status = Column("sharedstatus", Integer)
+    status = Column("pushstat", Integer)

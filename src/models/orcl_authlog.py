@@ -1,10 +1,10 @@
 from core.settings import config as _conf
 from database import Base
 
-from .mixins.auth_mixin import AuthLogMixin
+from .mixins.auth_mixin import AuthLogMixin, StatusMixin
 
 
-class OrclAuthLog(AuthLogMixin, Base):
+class OrclAuthLog(AuthLogMixin, StatusMixin, Base):
 
     __tablename__ = _conf.oracle_tbl_name
     __table_args__ = {"schema": _conf.oracle_schema_name}
