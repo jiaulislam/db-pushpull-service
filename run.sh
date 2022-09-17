@@ -1,3 +1,4 @@
 # !usr/bin/bash
-
-python3 ./src/main.py
+cd  /home/plil-dev/pushpull/
+source .venv/bin/activate
+python ./src/main.py 
