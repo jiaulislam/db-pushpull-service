@@ -9,7 +9,6 @@ BASE_PATH = Path(__file__).resolve().parent
 
 if __name__ == "__main__":
 
-    date_of = datetime(2022, 9, 15, 00, 00, 00)
     today = datetime.today()
 
     _start_datetime = datetime(today.year, today.month, today.day, 0, 0, 0)
