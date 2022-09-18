@@ -13,6 +13,17 @@ from models.orcl_authlog import OrclAuthLog as OAuthModel
 def core_create_logs(
     start_time: datetime, end_time: datetime, yield_range: int = 1000
 ) -> None:
+    """create logs from mssql table to oracle table
+
+    Parameter
+    ---------
+    start_date : datetime
+        start datetime instance
+    end_date : datetime
+        end datetime instance
+    yield_range: int
+        cursor size to read by lazy load
+    """
     mssql_select_stmt = (
         select(MAuthModel)
         .where(MAuthModel.transaction_time >= start_time)
@@ -56,6 +67,17 @@ def core_create_logs(
 def core_update_logs(
     start_date: datetime, end_date: datetime, yield_range: int = 1000
 ) -> None:
+    """Mark the inserted logs to success=1 in both mssql & oracle table
+
+    Parameter
+    ---------
+    start_date : datetime
+        start datetime instance
+    end_date : datetime
+        end datetime instance
+    yield_range: int
+        cursor size to read by lazy load
+    """
 
     orcl_select_stmt = (
         select(OAuthModel)
