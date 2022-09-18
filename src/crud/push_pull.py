@@ -30,7 +30,7 @@ def core_create_logs(
                 _total_inserted: int = 0
                 # get a cursor of 1000 at a time
                 cursor = mysql_connection.execution_options(
-                    yield_per=1000
+                    yield_per=yield_range
                 ).execute(mssql_select_stmt)
 
                 # loop through the cursor partitions to fetch data
