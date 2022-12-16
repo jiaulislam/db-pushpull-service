@@ -4,10 +4,17 @@ from datetime import datetime
 from sqlalchemy import bindparam, insert, select, update
 from sqlalchemy.orm import Session
 
-from database.mssql_db import mssql_engine
+from database.mssql_db import mssql_engine, mssql_engine_206
 from database.oracle_db import orcl_engine
 from models.mssql_authlog import MsSqlAuthLog as MAuthModel
 from models.orcl_authlog import OrclAuthLog as OAuthModel
+from models.t_leave_application import (
+    MSSqlEmpLeaveApplication,
+    MSSqlLeaveApplication,
+    OracleEmpLeaveApplication,
+    OracleLeaveApplication,
+)
+from models.t_leave_snaction import MSSqlLeaveSnaction, OracleLeaveSnaction
 
 
 def core_create_logs(
@@ -137,3 +144,176 @@ def core_update_logs(
                 f"Total Record:{_total_sent}\
                     Updated In: {time.time() - t0:.3f} secs"
             )
+
+
+def etl_tbl_t_leave_application(yield_range: int = 1000):
+
+    mssql_select_stmt = select(MSSqlLeaveApplication).where(
+        MSSqlLeaveApplication.status == None
+    )  # noqa
+
+    _total_inserted: int = 0
+    with Session(bind=orcl_engine, future=True) as orcl_session:
+        # Transaction Begin
+        with orcl_session.bind.begin() as orcl_connection:
+            with mssql_engine_206.connect() as mysql_connection:
+                t0 = time.time()
+                # get a cursor of 1000 at a time
+                cursor = mysql_connection.execution_options(
+                    yield_per=yield_range
+                ).execute(mssql_select_stmt)
+
+                # loop through the cursor partitions to fetch data
+                for partition in cursor.partitions():
+                    # insert all 1000 data in executemany mode
+                    t1 = time.time()
+                    res = orcl_connection.execute(
+                        insert(OracleLeaveApplication),
+                        [dict(row) for row in partition],
+                    )
+                    _total_inserted += res.rowcount
+                    print(
+                        f"{res.rowcount} Records Took: \
+                            {time.time() - t1:.3f} secs"
+                    )
+                # Transaction End
+                # orcl_connection.commit()
+                print(
+                    f"Total: {_total_inserted} Records Took: \
+                        {time.time() - t0:.3f} secs"
+                )
+
+                # Update The MS Sql Records
+                if _total_inserted:
+                    update_stmt = (
+                        update(MSSqlLeaveApplication)
+                        .where(MSSqlLeaveApplication.status == None)
+                        .values(pushstat=1)
+                    )
+                    mysql_connection.execute(update_stmt)
+                    mysql_connection.commit()
+
+            # Update the Oracle Records
+            if _total_inserted:
+                update_stmt = (
+                    update(OracleLeaveApplication)
+                    .where(OracleLeaveApplication.status == None)
+                    .values(pushstat=1)
+                )
+                orcl_connection.execute(update_stmt)
+                orcl_connection.commit()
+
+
+def etl_tbl_t_emp_leave_application(yield_range: int = 1000):
+
+    mssql_select_stmt = select(MSSqlEmpLeaveApplication).where(
+        MSSqlEmpLeaveApplication.status == None
+    )  # noqa
+
+    with Session(bind=orcl_engine, future=True) as orcl_session:
+        # Transaction Begin
+        _total_inserted: int = 0
+        with orcl_session.bind.begin() as orcl_connection:
+            with mssql_engine_206.connect() as mysql_connection:
+                t0 = time.time()
+                # get a cursor of 1000 at a time
+                cursor = mysql_connection.execution_options(
+                    yield_per=yield_range
+                ).execute(mssql_select_stmt)
+
+                # loop through the cursor partitions to fetch data
+                for partition in cursor.partitions():
+                    # insert all 1000 data in executemany mode
+                    t1 = time.time()
+                    res = orcl_connection.execute(
+                        insert(OracleEmpLeaveApplication),
+                        [dict(row) for row in partition],
+                    )
+
+                    _total_inserted += res.rowcount
+                    print(
+                        f"{res.rowcount} Records Took: \
+                            {time.time() - t1:.3f} secs"
+                    )
+                # Transaction End
+                # orcl_connection.commit()
+                print(
+                    f"Total: {_total_inserted} Records Took: \
+                        {time.time() - t0:.3f} secs"
+                )
+                if _total_inserted:
+                    # Update The MS Sql Records
+                    update_stmt = (
+                        update(MSSqlEmpLeaveApplication)
+                        .where(MSSqlEmpLeaveApplication.status == None)
+                        .values(pushstat=1)
+                    )
+                    mysql_connection.execute(update_stmt)
+                    mysql_connection.commit()
+
+            # Update the Oracle Records
+            if _total_inserted:
+                update_stmt = (
+                    update(OracleEmpLeaveApplication)
+                    .where(OracleEmpLeaveApplication.status == None)
+                    .values(pushstat=1)
+                )
+                orcl_connection.execute(update_stmt)
+                orcl_connection.commit()
+
+
+def etl_tb_t_leave_sanction(yield_range: int = 1000):
+    mssql_select_stmt = select(MSSqlLeaveSnaction).where(
+        MSSqlLeaveSnaction.status == None
+    )  # noqa
+
+    with Session(bind=orcl_engine, future=True) as orcl_session:
+        # Transaction Begin
+        _total_inserted: int = 0
+        with orcl_session.bind.begin() as orcl_connection:
+            with mssql_engine_206.connect() as mysql_connection:
+                t0 = time.time()
+                # get a cursor of 1000 at a time
+                cursor = mysql_connection.execution_options(
+                    yield_per=yield_range
+                ).execute(mssql_select_stmt)
+
+                # loop through the cursor partitions to fetch data
+                for partition in cursor.partitions():
+                    # insert all 1000 data in executemany mode
+                    t1 = time.time()
+                    res = orcl_connection.execute(
+                        insert(OracleLeaveSnaction),
+                        [dict(row) for row in partition],
+                    )
+
+                    _total_inserted += res.rowcount
+                    print(
+                        f"{res.rowcount} Records Took: \
+                            {time.time() - t1:.3f} secs"
+                    )
+                # Transaction End
+                # orcl_connection.commit()
+                print(
+                    f"Total: {_total_inserted} Records Took: \
+                        {time.time() - t0:.3f} secs"
+                )
+                if _total_inserted:
+                    # Update The MS Sql Records
+                    update_stmt = (
+                        update(MSSqlLeaveSnaction)
+                        .where(MSSqlLeaveSnaction.status == None)
+                        .values(pushstat=1)
+                    )
+                    mysql_connection.execute(update_stmt)
+                    mysql_connection.commit()
+
+            # Update the Oracle Records
+            if _total_inserted:
+                update_stmt = (
+                    update(OracleLeaveSnaction)
+                    .where(OracleLeaveSnaction.status == None)
+                    .values(pushstat=1)
+                )
+                orcl_connection.execute(update_stmt)
+                orcl_connection.commit()

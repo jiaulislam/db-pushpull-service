@@ -21,6 +21,14 @@ class Settings(BaseSettings):
     mssql_db_driver: str
     mssql_tbl_name: str
 
+    mssql_206_db_username: str
+    mssql_206_db_password: str
+    mssql_206_db_host: str
+    mssql_206_db_port: str
+    mssql_206_db_name: str
+    mssql_206_db_driver: str
+    mssql_206_tbl_name: str
+
     def get_oracle_dsn(self) -> URL:
         return URL.create(
             f"oracle+{self.oracle_db_driver}",
@@ -39,6 +47,20 @@ class Settings(BaseSettings):
             host=self.mssql_db_host,
             port=self.mssql_db_port,
             database=self.mssql_db_name,
+            query={
+                "driver": "ODBC Driver 18 for SQL Server",
+                "TrustServerCertificate": "yes",
+            },
+        )
+
+    def get_mssql_dsn_206(self) -> URL:
+        return URL.create(
+            f"mssql+{self.mssql_206_db_driver}",
+            username=self.mssql_206_db_username,
+            password=self.mssql_206_db_password,
+            host=self.mssql_206_db_host,
+            port=self.mssql_206_db_port,
+            database=self.mssql_206_db_name,
             query={
                 "driver": "ODBC Driver 18 for SQL Server",
                 "TrustServerCertificate": "yes",

@@ -20,3 +20,12 @@ if __name__ == "__main__":
 
     # update the logs on both sql server and oracle
     pp.core_update_logs(_start_datetime, _end_datetime, 100)
+
+    # pull the leave application table
+    pp.etl_tbl_t_leave_application()
+
+    # pull the employee leave application table
+    pp.etl_tbl_t_emp_leave_application()
+
+    # pull the leave snaction table
+    pp.etl_tb_t_leave_sanction()
